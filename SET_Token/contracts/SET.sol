@@ -183,20 +183,28 @@ contract StandardToken is Ownable{
 
 //taken from OpenZeppelin in August 2018, added Locking functionalities
 contract PausableToken is StandardToken{
-    
-  event Pause();
-  event Unpause();
-  event tokensAreLocked(address _from, uint256 _timeout);
 
-  bool public paused = false;
-    
+  event tokensAreLocked(address _from, uint256 _timeout);
+  event Paused(address account);
+  event Unpaused(address account);
+
+  bool private _paused = false; 
   mapping (address => uint256) lockups;
+
+  
+
+  /**
+   * @return true if the contract is paused, false otherwise.
+   */
+  function paused() public view returns(bool) {
+    return _paused;
+  }
 
   /**
    * @dev Modifier to make a function callable only when the contract is not paused.
    */
   modifier whenNotPaused() {
-    require(!paused);
+    require(!_paused);
     _;
   }
 
@@ -204,10 +212,10 @@ contract PausableToken is StandardToken{
    * @dev Modifier to make a function callable only when the contract is paused.
    */
   modifier whenPaused() {
-    require(paused);
+    require(_paused);
     _;
   }
-  
+
   /**
    * @dev Modifier to make a function callable only if tokens are not locked
    */
@@ -217,6 +225,24 @@ contract PausableToken is StandardToken{
         }
         _;
   }
+
+  /**
+   * @dev called by the owner to pause, triggers stopped state
+   */
+  function pause() public onlyOwner whenNotPaused {
+    _paused = true;
+    emit Paused(msg.sender);
+  }
+
+  /**
+   * @dev called by the owner to unpause, returns to normal state
+   */
+  function unpause() public onlyOwner whenPaused {
+    _paused = false;
+    emit Unpaused(msg.sender);
+  }
+    
+
     
  /**
  * @dev function to lock tokens utill a given block.timestamp
@@ -240,21 +266,6 @@ contract PausableToken is StandardToken{
      }
  }
 
-  /**
-   * @dev called by the owner to pause, triggers stopped state
-   */
-  function pause() onlyOwner whenNotPaused public {
-    paused = true;
-    emit Pause();
-  }
-
-  /**
-   * @dev called by the owner to unpause, returns to normal state
-   */
-  function unpause() onlyOwner whenPaused public {
-    paused = false;
-    emit Unpause();
-  }
 
   function transfer(address _to, uint256 _value) public whenNotPaused ifNotLocked(msg.sender)  returns (bool)
   {
@@ -302,7 +313,7 @@ contract PausableToken is StandardToken{
   
 }
 
-//taken from OpenZeppelin in August 2018, small changes where made to make burn into burnFrom by adding the additional parameter
+//taken from OpenZeppelin in August 2018
 contract BurnableToken is StandardToken{
 
   event Burn(address indexed burner, uint256 value);
