@@ -1,0 +1,3 @@
+The ERC20test.js  file includes tests for: StandardToken, MintableToken, BurnableToken, PausableToken and Ownable. 
+These tests are not ment to give a complete coverage of the smart Contract.
+These tests are taken form OpenZeppelin and adapted
