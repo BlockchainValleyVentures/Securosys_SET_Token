@@ -1,0 +1,14 @@
+Compiler warings:
+
+WARNING:
+-Potential Violation of Checks-Effects-Interaction pattern in DividendPayingToken.payDividendInEther(address,uint256): Could potentially lead to re-entrancy vulnerability.
+RESPONSE:
+-the onlyOwner modifier avoids re-entrency from third pary accouts
+
+WARNING:
+-use of "now": "now" does not mean current time. Now is an alias for block.timestamp. Block.timestamp can be influenced by miners to a certain degree, be careful.
+RESPONSE:
+-"now" is used to unlock tokens after lock-up period is over, using blocktime gives a maximum discrepency of 20sec. which is OK.
+
+
+
