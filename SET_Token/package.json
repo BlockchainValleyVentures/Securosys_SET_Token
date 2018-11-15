@@ -1,0 +1,10 @@
+{
+  "name": "set_token",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "chai": "^4.2.0",
+    "chai-bignumber": "^2.0.2",
+    "openzeppelin-solidity": "^2.0.0"
+  }
+}
