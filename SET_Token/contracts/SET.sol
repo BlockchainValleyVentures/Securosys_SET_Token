@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 /*
 from: https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/LICENSE
 
@@ -19,8 +19,8 @@ the following conditions:
 The above copyright notice and this permission notice shall be included
 in all copies or substantial portions of the Software.
 */ 
-import "./Ownable.sol";
-import "./SafeMath.sol";
+import "../node_modules/openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 //taken from OpenZeppelin in August 2018
 contract StandardToken is Ownable{
@@ -184,7 +184,7 @@ contract StandardToken is Ownable{
 //taken from OpenZeppelin in August 2018, added Locking functionalities
 contract PausableToken is StandardToken{
 
-  event tokensAreLocked(address _from, uint256 _timeout);
+  event TokensAreLocked(address _from, uint256 _timeout);
   event Paused(address account);
   event Unpaused(address account);
 
@@ -262,7 +262,7 @@ contract PausableToken is StandardToken{
         require(lockups[holder] == 0);
 
         lockups[holder] = timeout;
-        emit tokensAreLocked(holder, timeout);
+        emit TokensAreLocked(holder, timeout);
      }
  }
 
@@ -317,31 +317,22 @@ contract PausableToken is StandardToken{
 contract BurnableToken is StandardToken{
 
   event Burn(address indexed burner, uint256 value);
-  
-    //only owner can burn tokens
-    modifier hasBuringPermission() {
-        require(msg.sender == owner());
-        _;
-    }
     
     /**
     * @dev Burns a specific amount of tokens.
     * @param _from address from which the tokens are burned
     * @param _value The amount of token to be burned.
     */
-    function burnFrom(address _from, uint256 _value) public hasBuringPermission{
-        _burn(_from, _value);
-    }
+    function burnFrom(address _from, uint256 _value) public onlyOwner{
     
-    function _burn(address _who, uint256 _value) internal {
-        require(_value <= balances[_who]);
+        require(_value <= balances[_from]);
         // no need to require value <= totalSupply, since that would imply the
         // sender's balance is greater than the totalSupply, which *should* be an assertion failure
         
-        balances[_who] = balances[_who].sub(_value);
+        balances[_from] = balances[_from].sub(_value);
         totalSupply_ = totalSupply_.sub(_value);
-        emit Burn(_who, _value);
-        emit Transfer(_who, address(0), _value);
+        emit Burn(_from, _value);
+        emit Transfer(_from, address(0), _value);
     }
 }
 
@@ -378,6 +369,7 @@ contract MintableToken is StandardToken{
     public
     returns (bool)
   {
+    require(_to != address(0));
     totalSupply_ = totalSupply_.add(_amount);
     balances[_to] = balances[_to].add(_amount);
     emit Mint(_to, _amount);
@@ -398,8 +390,8 @@ contract MintableToken is StandardToken{
 
 contract DividendPayingToken is PausableToken, BurnableToken, MintableToken{
     
-    event payedDividendEther(address receiver, uint256 amount);
-    event payedDividendFromReserve(address receiver, uint256 amount);
+    event PayedDividendEther(address receiver, uint256 amount);
+    event PayedDividendFromReserve(address receiver, uint256 amount);
     
     uint256 EligibilityThreshold;
     
@@ -428,14 +420,14 @@ contract DividendPayingToken is PausableToken, BurnableToken, MintableToken{
     }
     
     function payDividentFromReserve(address _to, uint256 _amount) public onlyOwner isEligible(_to) returns(bool){
-        emit payedDividendFromReserve(_to, _amount);
+        emit PayedDividendFromReserve(_to, _amount);
         return transferFrom(TokenReserveAddress,_to, _amount);
     } 
     
     function payDividendInEther(address _to, uint256 _amount) public onlyOwner isEligible(_to) returns(bool){
         require(address(this).balance >= _amount );
         _to.transfer(_amount);
-        emit payedDividendEther(_to, _amount);
+        emit PayedDividendEther(_to, _amount);
         return true;
     }
     
