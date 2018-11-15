@@ -351,8 +351,8 @@ contract('SETToken', function ([_, owner, recipient, anotherAccount]) {
       });
 
       it('allows to transfer when paused and then unpaused', async function () {
-        await this.token.pause({ from: owner });
-        await this.token.unpause({ from: owner });
+        await this.token.pause();
+        await this.token.unpause();
 
         await this.token.transfer(to, 100, { from: owner });
 
@@ -361,7 +361,7 @@ contract('SETToken', function ([_, owner, recipient, anotherAccount]) {
       });
 
       it('reverts when trying to transfer when paused', async function () {
-        await this.token.pause({ from: owner });
+        await this.token.pause();
 
         await shouldFail.reverting(this.token.transfer(to, 100, { from: owner }));
       });
