@@ -1,7 +1,7 @@
 # Securosys_SET_Token
 
 ## Token Functions
-The Securosys SET Token is an ERC20 Compatible Security token, besides the standard ERC20 functions it has modules for:
+The Securosys SET Token is an ERC20 Compatible token, besides the standard ERC20 functions it has modules for:
 * Minting
 * Burning
 * Pausing
